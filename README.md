@@ -1,86 +1,22 @@
-# XI RPL 1 | Class Profile
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-Website profil kelas **XI RPL 1** (Software Engineering) di **SMKS Brigjend Katamso 2**. Kenali siswa, lihat dokumentasi kelas, dan cerita kami di SMK.
+# Run and deploy your AI Studio app
 
-🌐 Live: [https://11rpl1.vercel.app/](https://11rpl1.vercel.app/)  
-📸 Instagram: [@officialrpl_one](https://instagram.com/officialrpl_one)
+This contains everything you need to run your app locally.
 
----
+View your app in AI Studio: https://ai.studio/apps/9b12cbad-099c-46ba-83f8-54f1fba1fbf1
 
-## Tentang
+## Run Locally
 
-Website ini adalah profil digital kelas XI RPL 1 tahun ajaran 2026/2027. Dirancang dengan tema dark dan glassmorphism, responsive untuk diakses dari hp maupun komputer.
+**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
 
-### Fitur
 
-- **About** — Sejarah dan deskripsi kelas XI RPL 1
-- **Students** — Daftar 33 siswa + wali kelas, dengan fitur pencarian
-- **Structure** — Struktur kepengurusan kelas (Ketua, Wakil, Sekretaris, Bendahara, dll.)
-- **Roster** — Jadwal kegiatan kelas (Senin–Jumat)
-- **Gallery** — Foto dokumentasi kegiatan kelas
-- **Achievements** — Prestasi kelas, misalnya Juara 2 E-Sport Mobile Legend (2026)
-
----
-
-## Struktur Proyek
-
-```
-XI-RPL-1/
-├── index.html          # Halaman utama (single-page)
-├── css/
-│   └── style.css       # Styling dengan tema dark & glassmorphism
-├── js/
-│   ├── app.js          # Navigasi, pencarian siswa, scroll aktif
-│   └── students.js     # Data siswa dan guru
-├── assets/
-│   ├── students/       # Foto siswa (dengan nama lengkap)
-│   ├── teachers/       # Foto wali kelas
-│   └── og/             # Gambar Open Graph
-└── gallery/            # Foto dokumentasi kelas
-```
-
----
-
-## Data Siswa & Guru
-
-Total **33 siswa** dan **1 wali kelas**:
-
-**Wali Kelas:** Mr. Jusak Panggabean
-
-Siswa meliputi (antara lain): Aby Raditya, Agha Yoshzie Al Khusairy, Aisyah, Arwindren, Auliya Andinny, Bintang Arya Hafidsyah, Diana Zahra, Gusti Nayaka Effendi, Haikal Aldiansyah Pratama, Harum Stiafany Nasution, Imam Rades Kani Madarim, Indra Al Bukhori, Jihad Habiburrahman, Karriin Indriani Syahputri, Kenzie Laguna Khairullah P, M. Gijang Pratama, Mhd Raffy Albar Lubis, Muhammad Bimo Setiawan, Murshila Aldira Faizi, Nadia Putri, Prayoga Rama, Radit Alvino, Ravansya Krishna, Regina Putri Shalakira, Rendi Arifin, Sabrina Alfiya Zahra, Sabrina Irwana Marbun, Shri Sider, Suci Syifa Salsabilla, Tyo Adrian Permana, Yohana Cristiani Waruwu, Zahira Dulia Putri, dan Zovikar Wijaya.
-
----
-
-## Teknologi
-
-- HTML5
-- CSS3 (CSS Variables, Flexbox, Grid, Backdrop Filter)
-- Vanilla JavaScript
-- Font Inter (via Google Fonts)
-
----
-
-## Cara Menjalankan
-
-Clone repository ini lalu buka `index.html` di browser:
-
-```bash
-git clone https://github.com/tytialo091-crypto/XI-RPL-1.git
-cd XI-RPL-1
-```
-
-Buka file `index.html` langsung di browser, atau gunakan live server.
-
----
-
-## Kontribusi
-
-Pull request sangat diterima. Untuk perubahan besar, silakan buka issue terlebih dahulu untuk membahas apa yang ingin diubah.
-
----
-
-## Lisensi
-
-Dibuat dengan ❤️ untuk kelas XI RPL 1, SMKS Brigjend Katamso 2.
-
-© 2026 XI RPL 1 — Built with code & memories.
+1. Open Android Studio
+2. Select **Open** and choose the directory containing this project
+3. Allow Android Studio to fix any incompatibilities as it imports the project.
+4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
+5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
+6. Run the app on an emulator or physical device
+7. If you have already published your app in AI Studio, please [request upload key reset](https://support.google.com/googleplay/android-developer/answer/9842756#zippy=%2Crequest-an-upload-key-reset) in Google Play Console.

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<backup_rules xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+        PERBAIKAN: Exclude database dari backup untuk mencegah password/hash terbocor.
+        Database Room berisi password hash dan data sensitif.
+    -->
+    <fullBackupContent>
+        <include
+            name="edu_pinjam_database.db"
+            path="databases/edu_pinjam_database.db"
+            domain="database"
+            enabled="false" />
+        <exclude path="databases/" />
+    </fullBackupContent>
+</backup_rules>

@@ -1,0 +1,10 @@
+{
+  "name": "EDU-PINJAM",
+  "description": "Aplikasi Simpan Pinjam Inventaris Perlengkapan Sekolah dengan Room Database, DataStore, QR Code Scanner, dan Laporan",
+  "requestFramePermissions": [
+    "CAMERA"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

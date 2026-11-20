@@ -1,0 +1,255 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profil pengguna terautentikasi Google Sign-In pada aplikasi EDU-PINJAM.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID Firebase Auth pemilik profil."
+        },
+        "nama": {
+          "type": "string",
+          "description": "Nama lengkap pengguna."
+        },
+        "email": {
+          "type": "string",
+          "description": "Alamat email Google pengguna."
+        },
+        "nis": {
+          "type": "string",
+          "description": "Nomor Induk Siswa atau NIP staf (opsional)."
+        },
+        "kelas": {
+          "type": "string",
+          "description": "Kelas atau unit bagian sekolah (opsional)."
+        },
+        "noHp": {
+          "type": "string",
+          "description": "Nomor telepon aktif (opsional)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembuatan dokumen dari FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembaruan dokumen dari FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "nama",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CloudBarang": {
+      "title": "CloudBarang",
+      "description": "Data inventaris perlengkapan sekolah milik pengguna pada Cloud Firestore.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID Firebase Auth pemilik data inventaris."
+        },
+        "kodeBarang": {
+          "type": "string",
+          "description": "Kode unik barang inventaris (digunakan juga untuk QR Code)."
+        },
+        "namaBarang": {
+          "type": "string",
+          "description": "Nama perlengkapan sekolah."
+        },
+        "kategori": {
+          "type": "string",
+          "description": "Kategori inventaris (Alat Tulis, Buku, Elektronik, Olahraga, Lab, Musik, Lainnya)."
+        },
+        "stokTotal": {
+          "type": "integer",
+          "description": "Jumlah total unit barang."
+        },
+        "stokTersedia": {
+          "type": "integer",
+          "description": "Jumlah unit yang sedang tersedia untuk dipinjam."
+        },
+        "kondisi": {
+          "type": "string",
+          "enum": [
+            "Baik",
+            "Rusak Ringan",
+            "Rusak Berat"
+          ],
+          "description": "Kondisi fisik barang saat ini."
+        },
+        "lokasiRak": {
+          "type": "string",
+          "description": "Lokasi rak atau ruang penyimpanan."
+        },
+        "deskripsi": {
+          "type": "string",
+          "description": "Deskripsi tambahan barang (opsional)."
+        },
+        "fotoUri": {
+          "type": "string",
+          "description": "URI foto lokal/referensi gambar barang (opsional)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembuatan dokumen dari FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembaruan dokumen dari FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "kodeBarang",
+        "namaBarang",
+        "kategori",
+        "stokTotal",
+        "stokTersedia",
+        "kondisi",
+        "lokasiRak",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CloudPeminjaman": {
+      "title": "CloudPeminjaman",
+      "description": "Catatan transaksi simpan-pinjam perlengkapan sekolah pada Cloud Firestore.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "UID Firebase Auth pemilik transaksi."
+        },
+        "kodePeminjaman": {
+          "type": "string",
+          "description": "Kode unik transaksi peminjaman."
+        },
+        "barangDocId": {
+          "type": "string",
+          "description": "ID dokumen barang pada subkoleksi /users/{userId}/barang."
+        },
+        "kodeBarang": {
+          "type": "string",
+          "description": "Kode barang yang dipinjam."
+        },
+        "namaBarang": {
+          "type": "string",
+          "description": "Nama barang yang dipinjam."
+        },
+        "peminjamNama": {
+          "type": "string",
+          "description": "Nama siswa atau peminjam."
+        },
+        "peminjamNis": {
+          "type": "string",
+          "description": "NIS peminjam (opsional)."
+        },
+        "peminjamKelas": {
+          "type": "string",
+          "description": "Kelas peminjam (opsional)."
+        },
+        "jumlah": {
+          "type": "integer",
+          "description": "Jumlah unit yang dipinjam."
+        },
+        "tanggalPinjam": {
+          "type": "integer",
+          "description": "Epoch milidetik tanggal peminjaman."
+        },
+        "tanggalKembaliRencana": {
+          "type": "integer",
+          "description": "Epoch milidetik jatuh tempo pengembalian."
+        },
+        "tanggalKembaliAktual": {
+          "type": "integer",
+          "description": "Epoch milidetik pengembalian aktual (opsional)."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Dipinjam",
+            "Dikembalikan",
+            "Terlambat",
+            "Rusak"
+          ],
+          "description": "Status transaksi peminjaman."
+        },
+        "denda": {
+          "type": "integer",
+          "description": "Nominal denda keterlambatan dalam Rupiah."
+        },
+        "kondisiKembali": {
+          "type": "string",
+          "description": "Kondisi barang saat dikembalikan (opsional)."
+        },
+        "keperluan": {
+          "type": "string",
+          "description": "Keperluan peminjaman (opsional)."
+        },
+        "catatan": {
+          "type": "string",
+          "description": "Catatan tambahan saat pengembalian (opsional)."
+        },
+        "fotoKondisiUri": {
+          "type": "string",
+          "description": "URI foto kondisi pengembalian (opsional)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembuatan dokumen dari FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembaruan dokumen dari FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "kodePeminjaman",
+        "barangDocId",
+        "kodeBarang",
+        "namaBarang",
+        "peminjamNama",
+        "jumlah",
+        "tanggalPinjam",
+        "tanggalKembaliRencana",
+        "status",
+        "denda",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Dokumen profil pengguna terautentikasi."
+    },
+    "/users/{userId}/barang/{barangId}": {
+      "schema": {
+        "$ref": "#/entities/CloudBarang"
+      },
+      "description": "Subkoleksi data inventaris perlengkapan sekolah milik pengguna."
+    },
+    "/users/{userId}/peminjaman/{peminjamanId}": {
+      "schema": {
+        "$ref": "#/entities/CloudPeminjaman"
+      },
+      "description": "Subkoleksi transaksi peminjaman perlengkapan sekolah milik pengguna."
+    }
+  }
+}

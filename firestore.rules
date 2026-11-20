@@ -1,0 +1,187 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Jaring pengaman global: tolak semua operasi secara default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.nama is string && data.nama.size() >= 1 && data.nama.size() <= 80 &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 120)) &&
+             (!('nis' in data) || (data.nis is string && data.nis.size() <= 40)) &&
+             (!('kelas' in data) || (data.kelas is string && data.kelas.size() <= 60)) &&
+             (!('noHp' in data) || (data.noHp is string && data.noHp.size() <= 30));
+    }
+
+    function isValidBarang(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.kodeBarang is string && data.kodeBarang.size() >= 1 && data.kodeBarang.size() <= 50 &&
+             data.namaBarang is string && data.namaBarang.size() >= 1 && data.namaBarang.size() <= 120 &&
+             data.kategori is string && data.kategori.size() >= 1 && data.kategori.size() <= 40 &&
+             data.stokTotal is int && data.stokTotal >= 0 && data.stokTotal <= 100000 &&
+             data.stokTersedia is int && data.stokTersedia >= 0 && data.stokTersedia <= data.stokTotal &&
+             data.kondisi in ['Baik', 'Rusak Ringan', 'Rusak Berat'] &&
+             data.lokasiRak is string && data.lokasiRak.size() >= 1 && data.lokasiRak.size() <= 80 &&
+             (!('deskripsi' in data) || (data.deskripsi is string && data.deskripsi.size() <= 500)) &&
+             (!('fotoUri' in data) || (data.fotoUri is string && data.fotoUri.size() <= 500));
+    }
+
+    function isValidPeminjaman(data) {
+      return data.userId is string && data.userId == request.auth.uid &&
+             data.kodePeminjaman is string && data.kodePeminjaman.size() >= 1 && data.kodePeminjaman.size() <= 60 &&
+             isValidId(data.barangDocId) &&
+             data.kodeBarang is string && data.kodeBarang.size() >= 1 && data.kodeBarang.size() <= 50 &&
+             data.namaBarang is string && data.namaBarang.size() >= 1 && data.namaBarang.size() <= 120 &&
+             data.peminjamNama is string && data.peminjamNama.size() >= 1 && data.peminjamNama.size() <= 80 &&
+             data.jumlah is int && data.jumlah >= 1 && data.jumlah <= 10000 &&
+             data.tanggalPinjam is int && data.tanggalPinjam > 0 &&
+             data.tanggalKembaliRencana is int && data.tanggalKembaliRencana > 0 &&
+             data.status in ['Dipinjam', 'Dikembalikan', 'Terlambat', 'Rusak'] &&
+             data.denda is int && data.denda >= 0 && data.denda <= 100000000 &&
+             (!('peminjamNis' in data) || (data.peminjamNis is string && data.peminjamNis.size() <= 40)) &&
+             (!('peminjamKelas' in data) || (data.peminjamKelas is string && data.peminjamKelas.size() <= 60)) &&
+             (!('tanggalKembaliAktual' in data) || (data.tanggalKembaliAktual is int && data.tanggalKembaliAktual > 0)) &&
+             (!('kondisiKembali' in data) || (data.kondisiKembali is string && data.kondisiKembali.size() <= 40)) &&
+             (!('keperluan' in data) || (data.keperluan is string && data.keperluan.size() <= 300)) &&
+             (!('catatan' in data) || (data.catatan is string && data.catatan.size() <= 300)) &&
+             (!('fotoKondisiUri' in data) || (data.fotoKondisiUri is string && data.fotoKondisiUri.size() <= 500));
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'nama', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'nama', 'email', 'nis', 'kelas', 'noHp', 'createdAt', 'updatedAt']) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidUserProfile(incoming());
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['nama', 'email', 'nis', 'kelas', 'noHp', 'updatedAt']);
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /barang/{barangId} {
+        allow get: if isOwner(userId) && isValidId(userId) && isValidId(barangId);
+        allow list: if isOwner(userId) && isValidId(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(barangId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll([
+                           'userId', 'kodeBarang', 'namaBarang', 'kategori',
+                           'stokTotal', 'stokTersedia', 'kondisi', 'lokasiRak',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'kodeBarang', 'namaBarang', 'kategori',
+                           'stokTotal', 'stokTersedia', 'kondisi', 'lokasiRak',
+                           'deskripsi', 'fotoUri', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidBarang(incoming());
+
+        allow update: if isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(barangId) &&
+                         isValidBarang(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'kodeBarang', 'namaBarang', 'kategori',
+                           'stokTotal', 'stokTersedia', 'kondisi', 'lokasiRak',
+                           'deskripsi', 'fotoUri', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(barangId);
+      }
+
+      match /peminjaman/{peminjamanId} {
+        allow get: if isOwner(userId) && isValidId(userId) && isValidId(peminjamanId);
+        allow list: if isOwner(userId) && isValidId(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(peminjamanId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll([
+                           'userId', 'kodePeminjaman', 'barangDocId', 'kodeBarang',
+                           'namaBarang', 'peminjamNama', 'jumlah', 'tanggalPinjam',
+                           'tanggalKembaliRencana', 'status', 'denda',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'kodePeminjaman', 'barangDocId', 'kodeBarang',
+                           'namaBarang', 'peminjamNama', 'peminjamNis', 'peminjamKelas',
+                           'jumlah', 'tanggalPinjam', 'tanggalKembaliRencana',
+                           'tanggalKembaliAktual', 'status', 'denda', 'kondisiKembali',
+                           'keperluan', 'catatan', 'fotoKondisiUri',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         isValidPeminjaman(incoming()) &&
+                         exists(/databases/$(database)/documents/users/$(userId)/barang/$(incoming().barangDocId));
+
+        allow update: if isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(peminjamanId) &&
+                         isValidPeminjaman(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().barangDocId == existing().barangDocId &&
+                         incoming().kodePeminjaman == existing().kodePeminjaman &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         existing().status in ['Dipinjam', 'Terlambat'] &&
+                         (
+                           (incoming().status in ['Dikembalikan', 'Rusak'] &&
+                             incoming().diff(existing()).affectedKeys().hasOnly([
+                               'status', 'tanggalKembaliAktual', 'denda',
+                               'kondisiKembali', 'catatan', 'fotoKondisiUri', 'updatedAt'
+                             ])) ||
+                           (incoming().status in ['Dipinjam', 'Terlambat'] &&
+                             incoming().diff(existing()).affectedKeys().hasOnly([
+                               'jumlah', 'tanggalKembaliRencana', 'status',
+                               'keperluan', 'catatan', 'updatedAt'
+                             ]))
+                         );
+
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(peminjamanId);
+      }
+    }
+  }
+}

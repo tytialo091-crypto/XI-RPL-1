@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PERBAIKAN: Database Room (berisi password hash & data sensitif) tidak ikut di-extrakt
+     saat memindahkan data antar perangkat atau restore. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude path="databases/" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude path="databases/" />
+    </device-transfer>
+</data-extraction-rules>
